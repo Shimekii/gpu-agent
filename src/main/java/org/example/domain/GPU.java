@@ -14,6 +14,8 @@ public class GPU {
     private GpuStatus status;
     private final int totalMemory;
 
+    // конструктор поразумевает одну видеокарту (пока что)
+    // при инициализации подтягивает информацию об GPU
     public GPU(){
         ProcessBuilder pb = new ProcessBuilder(
                 "nvidia-smi",
@@ -38,6 +40,7 @@ public class GPU {
         status = GpuStatus.FREE;
     }
 
+    // сбор метрик в текущий момент
     public GPUMetric computeMetrics(){
         ProcessBuilder pb = new ProcessBuilder(
                 "nvidia-smi",
@@ -54,6 +57,7 @@ public class GPU {
             String line = reader.readLine();
             String[] result = line.split(",\\s*");
             process.destroy();
+
             int free = Integer.parseInt(result[0]);
             int temp = Integer.parseInt(result[1]);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS");
@@ -69,6 +73,7 @@ public class GPU {
         }
     }
 
+    // информация об запущенных процессах
     public List<GPUProcess> getProcesses(){
         ProcessBuilder pb = new ProcessBuilder(
                 "nvidia-smi",
@@ -92,6 +97,7 @@ public class GPU {
                 }
                 result.add(new GPUProcess(pid, name, usedMemory));
             }
+            process.destroy();
             return result;
 
         } catch (Exception e){
