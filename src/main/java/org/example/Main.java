@@ -1,20 +1,31 @@
 package org.example;
-
-
-import org.example.domain.GPU;
-import org.example.domain.GPUProcess;
-
-import java.util.List;
+import org.example.service.GPUAgent;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        GPU gpu = new GPU();
-        System.out.println(gpu);
-        System.out.println(gpu.computeMetrics());
-        List<GPUProcess> processes = gpu.getProcesses();
+        Scanner scanner = new Scanner(System.in);
+        GPUAgent agent = new GPUAgent();
+        boolean running = true;
+        while(running){
+            String line = scanner.nextLine().trim();
+            String[] commandArgs = line.split("\\s+");
+            if (commandArgs.length == 0 || commandArgs[0].isEmpty()) continue;
 
-        for (GPUProcess process : processes){
-            System.out.println(process);
+            switch (commandArgs[0]){
+                case "start":
+                    agent.startMonitoring();
+                    break;
+                case "stop":
+                    agent.stopMonitoring();
+                    break;
+                case "show":
+                    agent.showData("owner");
+                    break;
+                case "exit":
+                    agent.close();
+                    System.exit(0);
+            }
         }
     }
 }
