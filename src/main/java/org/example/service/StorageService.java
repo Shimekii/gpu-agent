@@ -24,6 +24,10 @@ public class StorageService {
         return map.get(key);
     }
 
+    public Map<String, Object> getMap(){
+        return map;
+    }
+
     public void close(){
         store.close();
     }
