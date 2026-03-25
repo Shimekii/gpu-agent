@@ -2,15 +2,13 @@ package org.example;
 import org.example.service.GPUAgent;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final GPUAgent agent = new GPUAgent();
     public static void main(String[] args) {
-        boolean running = true;
-        while(running){
+        while(true){
             String line = scanner.nextLine().trim();
             String[] commandArgs = line.split("\\s+");
             if (commandArgs.length == 0 || commandArgs[0].isEmpty()) continue;
@@ -23,12 +21,15 @@ public class Main {
                     agent.stopMonitoring();
                     break;
                 case "show":
-                    commandShow(Arrays.copyOfRange(commandArgs, 1, commandArgs.length));
+                    agent.showData();
                     break;
                 case "exit":
                     agent.close();
                     System.exit(0);
+                default:
+                    System.out.println("Unknown command");
             }
+
         }
     }
 
@@ -37,7 +38,7 @@ public class Main {
             System.out.println("Username is empty");
         }
         else {
-            agent.showData(args[0]);
+            agent.showData();
         }
     }
 }
