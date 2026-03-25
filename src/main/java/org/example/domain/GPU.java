@@ -1,6 +1,7 @@
 package org.example.domain;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -67,17 +68,16 @@ public class GPU {
                     .toInstant();
             return new GPUMetric(timestamp, free, temp);
 
-        } catch (Exception e){
-            e.printStackTrace();
-            return null;
+        } catch (IOException e){
+            throw new RuntimeException(e);
         }
     }
 
     // информация об запущенных процессах
-    public List<GPUProcess> getProcesses(){
+    public List<String> getProcesses(){
         ProcessBuilder pb = new ProcessBuilder(
                 "nvidia-smi",
-                "--query-compute-apps=pid,process_name,used_memory",
+                "--query-compute-apps=process_name",
                 "--format=csv,noheader"
         );
         try {
@@ -85,24 +85,16 @@ public class GPU {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream())
             );
-            List<GPUProcess> result = new ArrayList<>();
+            List<String> result = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null){
-                String[] parseLine = line.split(",\\s*");
-                int pid = Integer.parseInt(parseLine[0]);
-                String name = parseLine[1];
-                int usedMemory = 0;
-                if (!parseLine[2].equals("[N/A]")){
-                    usedMemory = Integer.parseInt(parseLine[2]);
-                }
-                result.add(new GPUProcess(pid, name, usedMemory));
+                result.add(line);
             }
             process.destroy();
             return result;
 
-        } catch (Exception e){
-            e.printStackTrace();
-            return null;
+        } catch (IOException e){
+            throw new RuntimeException(e);
         }
     }
 

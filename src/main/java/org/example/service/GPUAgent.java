@@ -7,11 +7,15 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.example.domain.GPU;
 import org.example.domain.GPUMetric;
-import org.example.domain.GPUProcess;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +47,7 @@ public class GPUAgent {
         if (!isMonitoring) {
             System.out.println("Start monitoring...");
             isMonitoring = true;
-            Runnable task = () -> collectData();
+            Runnable task = this::collectData;
             long delay = 60;
             scheduler.scheduleAtFixedRate(task, 0, delay, TimeUnit.SECONDS);
         } else{
@@ -54,14 +58,16 @@ public class GPUAgent {
     // сборщик данных
     private void collectData(){
         GPUMetric metric = gpu.computeMetrics();
-        List<GPUProcess> processes = gpu.getProcesses();
-
+        String keyStamp = metric.key();
+        List<String> processes = gpu.getProcesses();
+        List<String> activeUsers = mockUsers();
         Map<String, Object> jsonMap = new LinkedHashMap<>();
         jsonMap.put("metrics", metric);
         jsonMap.put("processes", processes);
+        jsonMap.put("users", activeUsers);
         try {
             String json = mapper.writeValueAsString(jsonMap);
-            storageService.put("owner", json);
+            storageService.put(keyStamp, json);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -76,19 +82,47 @@ public class GPUAgent {
         }
     }
 
-    public void showData(String key){
-        var json = storageService.get(key);
-        try {
-            var obj = mapper.readValue(json.toString(), Map.class);
-            String pretty = mapper.writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(obj);
-            System.out.println(pretty);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+    public void showData(){
+        var map = storageService.getMap();
+
+       Set<String> keys = map.keySet();
+       for (String key : keys){
+           try {
+               var rawJson = mapper.readValue(map.get(key).toString(), Map.class);
+               String json = mapper.writerWithDefaultPrettyPrinter()
+                       .writeValueAsString(rawJson);
+               System.out.println(json);
+           } catch (JsonProcessingException e) {
+               throw new RuntimeException(e);
+           }
+       }
     }
 
     public void close(){
         storageService.close();
+    }
+
+    private List<String> mockUsers(){
+        return List.of("user1", "user2", "user3");
+    }
+
+    // проверяет активных пользователей
+    private List<String> checkUsers(){
+        ProcessBuilder pb = new ProcessBuilder("who");
+        List<String> activeUsers = new ArrayList<>();
+        try {
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream())
+            );
+            String line;
+            while((line = reader.readLine()) != null){
+                activeUsers.add(line);
+            }
+            process.destroy();
+            return activeUsers;
+        } catch (IOException e){
+            throw new RuntimeException(e);
+        }
     }
 }
