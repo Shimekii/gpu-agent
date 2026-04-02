@@ -27,6 +27,8 @@ public class GPUAgent {
     private final ScheduledExecutorService scheduler;
     private boolean isMonitoring;
 
+    public StorageService getStorageService() { return storageService; }
+
     public GPUAgent(){
         gpu = new GPU();
         storageService = new StorageService("storage/data.mv.db", "logMap");
