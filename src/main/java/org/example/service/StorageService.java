@@ -31,4 +31,8 @@ public class StorageService {
     public void close(){
         store.close();
     }
+
+    public MVStore getStore() {
+        return store;
+    }
 }
