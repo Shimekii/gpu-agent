@@ -1,17 +1,23 @@
 package org.example.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.example.domain.User;
 import org.example.service.StorageService;
 import java.util.Map;
 
 public class UserRepository {
     private final Map<String, Object> db;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     public UserRepository(StorageService storageService) {
         // отдельный map для пользователей
         this.db = storageService.getStore().openMap("userMap");
+
+        this.mapper = new ObjectMapper();
+        this.mapper.registerModule(new JavaTimeModule());
+        this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     public void save(User user) throws Exception {
