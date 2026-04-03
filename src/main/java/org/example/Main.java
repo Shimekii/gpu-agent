@@ -51,6 +51,21 @@ public class Main {
                         }
                     }
                     break;
+                case "show-users":
+                    try {
+                        // достаем map пользователей напрямую из репозитория
+                        var users = userRepository.getStorageService().getStore().openMap("userMap");
+                        var logs = userRepository.getStorageService().getStore().openMap("connectionLogMap");
+
+                        System.out.println("--- ЗАРЕГИСТРИРОВАННЫЕ ПОЛЬЗОВАТЕЛИ ---");
+                        users.forEach((k, v) -> System.out.println(k + " => " + v));
+
+                        System.out.println("\n--- ЛОГИ ПОДКЛЮЧЕНИЙ ---");
+                        logs.forEach((k, v) -> System.out.println(k + " => " + v));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
                 default:
                     System.out.println("Unknown command");
             }
