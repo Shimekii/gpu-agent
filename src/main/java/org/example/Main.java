@@ -39,6 +39,18 @@ public class Main {
                 case "exit":
                     agent.close();
                     System.exit(0);
+                case "login":
+                    if (commandArgs.length < 2) {
+                        System.out.println("Используйте: login <username>");
+                    } else {
+                        try {
+                            // имитируем процесс входа
+                            userService.processLogin(commandArgs[1]);
+                        } catch (Exception e) {
+                            System.err.println("Ошибка при логировании: " + e.getMessage());
+                        }
+                    }
+                    break;
                 default:
                     System.out.println("Unknown command");
             }

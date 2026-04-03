@@ -16,6 +16,8 @@ dependencies {
     implementation("com.h2database:h2:2.2.224")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.12.4")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4")
+
+    compileOnly("javax.servlet:javax.servlet-api:4.0.1")
 }
 
 tasks.test {
