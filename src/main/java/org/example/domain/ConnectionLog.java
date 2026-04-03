@@ -8,12 +8,17 @@ public class ConnectionLog {
     private Instant logoutTime;
     private ConnectionType connectionType;
 
-    ConnectionLog(String id){
+    public ConnectionLog(String id){
         this.id = id;
         loginTime = Instant.now();
         logoutTime = null;
         connectionType = ConnectionType.IN_TIME;
     }
+
+    public String getId() { return id; }
+    public Instant getLoginTime() { return loginTime; }
+    public Instant getLogoutTime() { return logoutTime; }
+    public ConnectionType getConnectionType() { return connectionType; }
 
     public void closeConnection(){
         logoutTime = Instant.now();

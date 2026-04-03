@@ -7,13 +7,17 @@ import org.example.service.UserService;
 import org.example.repository.UserRepository;
 import org.example.domain.User;
 import org.example.domain.UserRole;
+import org.example.repository.RequestRepository;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final GPUAgent agent = new GPUAgent();
 
     private static final UserRepository userRepository = new UserRepository(agent.getStorageService());
-    private static final UserService userService = new UserService(userRepository);
+
+    private static final RequestRepository requestRepository = new RequestRepository(agent.getStorageService());
+
+    private static final UserService userService = new UserService(userRepository, requestRepository);
 
     public static void main(String[] args) {
         initDefaultAdmin(); // инициализация админа по умолчанию, тк чтобы можно было войти в систему, в базе должен быть хотя бы один администратор

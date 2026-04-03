@@ -10,8 +10,10 @@ import java.util.Map;
 public class UserRepository {
     private final Map<String, Object> db;
     private final ObjectMapper mapper;
+    private final StorageService storageService;
 
     public UserRepository(StorageService storageService) {
+        this.storageService = storageService;
         // отдельный map для пользователей
         this.db = storageService.getStore().openMap("userMap");
 
@@ -28,5 +30,9 @@ public class UserRepository {
         Object data = db.get(login);
         if (data == null) return null;
         return mapper.readValue(data.toString(), User.class);
+    }
+
+    public StorageService getStorageService() {
+        return storageService;
     }
 }
