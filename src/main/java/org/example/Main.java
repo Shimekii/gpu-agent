@@ -2,12 +2,22 @@ package org.example;
 import org.example.service.GPUAgent;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import org.example.service.UserService;
 import org.example.repository.UserRepository;
 import org.example.domain.User;
+import org.example.domain.Request;
+import org.example.domain.RequestStatus;
+import java.time.LocalDateTime;
 import org.example.domain.UserRole;
 import org.example.repository.RequestRepository;
+
+import org.apache.catalina.Context;
+import org.apache.catalina.startup.Tomcat;
+import org.example.servlet.UserServlet;
+import java.io.File;
+import org.example.service.CommandProcessor;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
@@ -19,8 +29,16 @@ public class Main {
 
     private static final UserService userService = new UserService(userRepository, requestRepository);
 
+    private static final CommandProcessor commands = new CommandProcessor(userService, userRepository, requestRepository, agent);
+
     public static void main(String[] args) {
+        try {
+            startServer();
+        } catch (Exception e) {
+            System.err.println("Не удалось запустить HTTP сервер: " + e.getMessage());
+        }
         initDefaultAdmin(); // инициализация админа по умолчанию, тк чтобы можно было войти в систему, в базе должен быть хотя бы один администратор
+        commands.printHelp();
         while(true){
             String line = scanner.nextLine().trim();
             String[] commandArgs = line.split("\\s+");
@@ -39,35 +57,51 @@ public class Main {
                 case "exit":
                     agent.close();
                     System.exit(0);
+                case "help":
+                    commands.printHelp();
+                    break;
                 case "login":
-                    if (commandArgs.length < 2) {
-                        System.out.println("Используйте: login <username>");
-                    } else {
+                    if (commandArgs.length > 1) {
                         try {
-                            // имитируем процесс входа
                             userService.processLogin(commandArgs[1]);
                         } catch (Exception e) {
-                            System.err.println("Ошибка при логировании: " + e.getMessage());
+                            System.err.println("Ошибка при попытке входа: " + e.getMessage());
                         }
+                    } else {
+                        System.out.println("Укажите логин: login <username>");
                     }
+                    break;
+                case "create-request":
+                    commands.createTestRequest(commandArgs[1]);
+                    break;
+                case "approve-requests":
+                    commands.approveAll();
+                    break;
+                case "show-requests":
+                    commands.showRequests();
                     break;
                 case "show-users":
-                    try {
-                        // достаем map пользователей напрямую из репозитория
-                        var users = userRepository.getStorageService().getStore().openMap("userMap");
-                        var logs = userRepository.getStorageService().getStore().openMap("connectionLogMap");
-
-                        System.out.println("--- ЗАРЕГИСТРИРОВАННЫЕ ПОЛЬЗОВАТЕЛИ ---");
-                        users.forEach((k, v) -> System.out.println(k + " => " + v));
-
-                        System.out.println("\n--- ЛОГИ ПОДКЛЮЧЕНИЙ ---");
-                        logs.forEach((k, v) -> System.out.println(k + " => " + v));
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    commands.showUsers();
+                    break;
+                case "show-logs":
+                    commands.showLogs();
+                    // commands.showLogsFriendly();
+                    break;
+                case "delete":
+                    if (commandArgs.length > 1) {
+                        commands.deleteUser(commandArgs[1]);
+                    } else {
+                        System.out.println("Укажите логин: delete <username>");
                     }
                     break;
+                case "clear-requests":
+                    commands.clearRequests();
+                    break;
+                case "clear":
+                    commands.clearAllData();
+                    break;
                 default:
-                    System.out.println("Unknown command");
+                    System.out.println("Неизвестная команда");
             }
 
         }
@@ -92,5 +126,22 @@ public class Main {
         else {
             agent.showData();
         }
+    }
+
+    private static void startServer() throws Exception {
+        Tomcat tomcat = new Tomcat();
+        tomcat.setPort(8080); // порт для Postman
+        tomcat.getConnector();
+
+        String docBase = new File(".").getAbsolutePath();
+        Context context = tomcat.addContext("", docBase);
+
+        // регистрируем сервлет вручную
+        UserServlet userServlet = new UserServlet(userService);
+        Tomcat.addServlet(context, "UserServlet", userServlet);
+        context.addServletMappingDecoded("/users", "UserServlet");
+
+        tomcat.start();
+        System.out.println("HTTP сервер запущен на http://localhost:8080/users");
     }
 }

@@ -40,16 +40,22 @@ public class UserService {
                 // проверяем, что заявка либо одобрена, либо уже активна
                 .filter(r -> r.getStatus() == RequestStatus.APPROVED || r.getStatus() == RequestStatus.ACTIVE)
                 // проверка временного окна
-                .anyMatch(r -> !now.isBefore(r.getStartTime()) && !now.isAfter(r.getEndTime()));
+                .anyMatch(r -> now.isAfter(r.getStartTime()) && now.isBefore(r.getEndTime()));
     }
 
     public void processLogin(String login) throws Exception {
+        // проверка
+        if (userRepository.findByLogin(login) == null) {
+            System.out.println("Ошибка: Пользователь " + login + " не найден в системе!");
+            return;
+        }
+
         // проверяем время (пока не знаем, занята ли GPU (это к задаче 2 относится часть))
         boolean inTime = isUserInWorkTime(login);
-        ConnectionType type = inTime ? ConnectionType.IN_TIME : ConnectionType.OUT_OF_TIME_NO_CONFLICT;
 
         // создаем объект лога
         ConnectionLog log = new ConnectionLog(login);
+        log.setConnectionType(inTime ? ConnectionType.IN_TIME : ConnectionType.OUT_OF_TIME_NO_CONFLICT);
 
         // сохраняем в MVStore в виде JSON строки
         Map<String, Object> logMap = userRepository.getStorageService().getStore().openMap("connectionLogMap");
