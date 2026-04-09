@@ -35,4 +35,12 @@ public class StorageService {
     public MVStore getStore() {
         return store;
     }
+
+    public void remove(String key) {
+        map.remove(key);
+    }
+
+    public void commit() {
+        store.commit();
+    }
 }

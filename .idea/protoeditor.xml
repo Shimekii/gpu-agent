@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProtobufLanguageSettings">
+    <option name="importPathEntries">
+      <list>
+        <ImportPathEntry>
+          <option name="location" value="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.protobuf/protobuf-java/3.24.0/850a0efbee73911b2c30fa2238a549244524d31e/protobuf-java-3.24.0.jar!/google/protobuf" />
+        </ImportPathEntry>
+      </list>
+    </option>
+  </component>
+</project>

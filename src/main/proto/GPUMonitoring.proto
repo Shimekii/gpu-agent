@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package gpu.monitoring;
+
+option java_multiple_files = true;
+option java_package = "org.example.grpc";
+option java_outer_classname = "GPUMonitoringProto";
+
+message Empty {}
+message GPUMetric {
+  string timestamp = 1;
+  int32 free_memory_mb = 2;
+  int32 temperature_c = 3;
+  repeated string processes = 4;
+}
+
+service GPUMonitoring {
+  //Последняя сохранённая метрика
+  rpc GetLatestMetric (Empty) returns (GPUMetric);
+  //Метрики за временной диапазон
+  rpc GetAllMetrics (Empty) returns (stream GPUMetric);
+}
