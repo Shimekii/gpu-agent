@@ -1,11 +1,9 @@
 package org.example.domain;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 
 public class GPUMetric {
     private final Instant timestamp;
@@ -32,5 +30,9 @@ public class GPUMetric {
                 ", temperature=" + temperature +
                 '}';
     }
+
+    public Instant getTimestamp() { return timestamp; }
+    public int getFreeMemory() { return freeMemory; }
+    public int getTemperature() { return temperature; }
 }
 

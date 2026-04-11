@@ -54,7 +54,7 @@ public class Main {
         }
 
         try {
-            grpcServer = new GRPCServer(50051, agent.getStorageService());
+            grpcServer = new GRPCServer(50051, agent);
             grpcServer.start();
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Не удалось запустить GRPC сервер", e);
