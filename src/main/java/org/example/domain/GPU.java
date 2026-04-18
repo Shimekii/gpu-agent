@@ -15,34 +15,51 @@ public class GPU {
     private GpuStatus status;
     private final int totalMemory;
 
+    private final boolean isMockMode; // используется мок, если нет компонента Nvidia, для тестирования
+
     // конструктор поразумевает одну видеокарту (пока что)
     // при инициализации подтягивает информацию об GPU
     public GPU(){
+        int tempId = 0;
+        int tempMem = 24576; // заглушка памяти (24GB для RTX 4090)
+        boolean mock = false;
+
         ProcessBuilder pb = new ProcessBuilder(
                 "nvidia-smi",
                 "--query-gpu=index,memory.total",
                 "--format=csv,noheader,nounits"
         );
-        String[] result = new String[0];
+        String[] result;
         try {
             Process process = pb.start();
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(process.getInputStream())
             );
             String line = reader.readLine();
-            result = line.split(",\\s*");
+            if (line != null) {
+                result = line.split(",\\s*");
+                tempId = Integer.parseInt(result[0]);
+                tempMem = Integer.parseInt(result[1]);
+            }
             process.destroy();
 
         } catch (Exception e){
-            e.printStackTrace();
+            System.err.println("ВНИМАНИЕ: nvidia-smi не найден. GPU-агент переходит в режим заглушки!!!");
+            mock = true;
         }
-        id = Integer.parseInt(result[0]);
-        totalMemory = Integer.parseInt(result[1]);
-        status = GpuStatus.FREE;
+        this.id = tempId;
+        this.totalMemory = tempMem;
+        this.status = GpuStatus.FREE;
+        this.isMockMode = mock;
     }
 
     // сбор метрик в текущий момент
     public GPUMetric computeMetrics(){
+        if (isMockMode) {
+            // возвращаем заглушку для тестирования
+            return new GPUMetric(Instant.now(), 12000, 65);
+        }
+
         ProcessBuilder pb = new ProcessBuilder(
                 "nvidia-smi",
                 "--query-gpu=memory.free,temperature.gpu,timestamp",
@@ -75,6 +92,11 @@ public class GPU {
 
     // информация об запущенных процессах
     public List<String> getProcesses(){
+        if (isMockMode) {
+            // заглушка, процессы
+            return List.of("python3 train_model.py (Mock)", "jupyter-notebook (Mock)");
+        }
+
         ProcessBuilder pb = new ProcessBuilder(
                 "nvidia-smi",
                 "--query-compute-apps=process_name",
