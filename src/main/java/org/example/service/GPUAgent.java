@@ -11,14 +11,12 @@ import org.example.domain.GPUMetric;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class GPUAgent {
     private final GPU gpu;
@@ -126,5 +124,36 @@ public class GPUAgent {
         } catch (IOException e){
             throw new RuntimeException(e);
         }
+    }
+
+    public Optional<GPUMetric> getLatestMetric() {
+        var map = storageService.getMap();
+        if (map.isEmpty()) return Optional.empty();
+        String lastKey = map.keySet().stream().max(String::compareTo).orElse(null);
+        return parseJsonToMetric(map.get(lastKey).toString());
+    }
+
+    public Stream<GPUMetric> getAllMetrics() {
+        return storageService.getMap().values().stream()
+                .map(obj -> parseJsonToMetric(obj.toString()))
+                .filter(Optional::isPresent)
+                .map(Optional::get);
+    }
+
+    public Optional<GPUMetric> parseJsonToMetric(String json) {
+        try {
+            Map<String, Object> jsonMap = mapper.readValue(json, Map.class);
+            Map<String, Object> metricsMap = (Map<String, Object>) jsonMap.get("metrics");
+            Instant timestamp = Instant.parse((String) metricsMap.get("timestamp"));
+            int freeMemory = (int) metricsMap.get("freeMemory");
+            int temperature = (int) metricsMap.get("temperature");
+            return Optional.of(new GPUMetric(timestamp, freeMemory, temperature));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public List<String> getCurrentProcesses() {
+        return gpu.getProcesses();
     }
 }
