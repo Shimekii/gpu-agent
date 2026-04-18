@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>GPU-Manager | Панель управления</title>
+  <link rel="stylesheet" href="student.css">
+  <script src="student.js"></script>
+</head>
+<body onload="initDashboard()">
+<div id="admin-panel" class="container" style="display: none;">
+  <h1>Панель администратора</h1>
+  <div class="grid-buttons">
+    <button class="menu-btn">Пользователи</button>
+    <button class="menu-btn">Заявки</button>
+    <button class="menu-btn">Подключения</button>
+    <button class="menu-btn">Метрики GPU</button>
+  </div>
+</div>
+
+<div id="student-panel" class="container" style="display: none;">
+  <h3>Личный кабинет студента</h3>
+  <div class="status-card">
+    <div id="access-badge" class="badge"></div>
+    <p>Ближайшая заявка: <span class="time-highlight">10.03.2026 11:00 - 18:00</span></p>
+    <div class="grid-buttons">
+      <button class="menu-btn" onclick="location.href='my_requests.html'">Мои заявки</button>
+      <button class="menu-btn" onclick="location.href='create_request.html'">Создать заявку</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  function initDashboard() {
+    const role = localStorage.getItem('userRole');
+    const user = localStorage.getItem('currentUser');
+
+    if (!user) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    if (role === 'ADMIN') {
+      document.getElementById('admin-panel').style.display = 'block';
+    } else {
+      document.getElementById('student-panel').style.display = 'block';
+      checkCurrentStatus();
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Создать заявку</title>
+    <link rel="stylesheet" href="student.css">
+    <script src="student.js"></script>
+</head>
+<body class="student-layout">
+<div class="student-title">Личный кабинет студента</div>
+
+<div class="request-card">
+    <h2>Новая заявка на GPU</h2>
+    <div class="form-group">
+        <label>Цель использования</label>
+        <input type="text" id="purpose" placeholder="Например: Обучение нейросети YOLOv8">
+    </div>
+    <div class="form-group">
+        <label>Дата</label>
+        <input type="date" id="reqDate">
+    </div>
+    <div class="form-group">
+        <label>Время начала</label>
+        <input type="time" id="startTime">
+        <div class="hint">Формат: ЧЧ:ММ (24ч)</div>
+    </div>
+    <div class="form-group">
+        <label>Время окончания</label>
+        <input type="time" id="endTime">
+    </div>
+
+    <div id="val-error" style="color:red; display:none; margin-bottom:10px;"></div>
+
+    <div class="btn-row">
+        <button class="btn-secondary" onclick="location.href='dashboard.html'">Отмена</button>
+        <button class="btn-primary" onclick="submitRequest()">Отправить</button>
+    </div>
+</div>
+</body>
+</html>

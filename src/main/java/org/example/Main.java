@@ -15,6 +15,7 @@ import org.example.repository.RequestRepository;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.example.servlet.UserServlet;
+import org.example.servlet.RequestServlet;
 import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -166,18 +167,32 @@ public class Main {
 
     private static void startServer() throws Exception {
         Tomcat tomcat = new Tomcat();
-        tomcat.setPort(8080); // порт для Postman
+        tomcat.setPort(8080);
         tomcat.getConnector();
 
-        String docBase = new File(".").getAbsolutePath();
-        Context context = tomcat.addContext("", docBase);
+        File staticFolder = new File("src/main/resources/static");
+        if (!staticFolder.exists()) {
+            staticFolder = new File("build/resources/main/static");
+        }
 
-        // регистрируем сервлет вручную
+        // System.out.println("Используется папка для сайта: " + staticFolder.getAbsolutePath());
+
+        Context context = tomcat.addContext("", staticFolder.getAbsolutePath());
+
+        Tomcat.addServlet(context, "default", new org.apache.catalina.servlets.DefaultServlet());
+        context.addServletMappingDecoded("/", "default");
+
+        context.addWelcomeFile("index.html");
+
         UserServlet userServlet = new UserServlet(userService);
         Tomcat.addServlet(context, "UserServlet", userServlet);
         context.addServletMappingDecoded("/users", "UserServlet");
 
+        RequestServlet requestServlet = new RequestServlet(requestRepository);
+        Tomcat.addServlet(context, "RequestServlet", requestServlet);
+        context.addServletMappingDecoded("/requests", "RequestServlet");
+
         tomcat.start();
-        System.out.println("HTTP сервер запущен на http://localhost:8080/users");
+        System.out.println("Сервер запущен. Открыть: http://localhost:8080/");
     }
 }

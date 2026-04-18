@@ -1,0 +1,144 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f2f5;
+    font-family: sans-serif;
+}
+
+.student-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 50px;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+}
+
+.student-title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.request-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 500px;
+}
+
+.request-card.wide {
+    width: 800px; /* Для таблицы */
+}
+
+/* Формы */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+.hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+/* Таблицы */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+th { background-color: #f8f9fa; }
+
+/* Кнопки */
+.btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+.btn-primary { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; flex: 1; }
+.btn-secondary { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; flex: 1; }
+.btn-primary:hover { background: #0056b3; }
+
+/* Статус-плашки */
+/* Базовый стиль бейджа */
+.badge {
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    display: inline-block;
+    color: white; /* Текст всегда белый на цветном фоне */
+    margin-bottom: 15px;
+    transition: background-color 0.3s ease;
+}
+
+/* Цвета состояний */
+.badge.red {
+    background-color: #dc3545; /* Красный - доступа нет */
+}
+
+.badge.orange {
+    background-color: #fd7e14; /* Оранжевый - ожидание / на рассмотрении */
+}
+
+.badge.green {
+    background-color: #28a745; /* Зеленый - доступ разрешен! */
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    width: 500px;
+    text-align: center;
+}
+
+.grid-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.menu-btn {
+    padding: 15px;
+    font-size: 14px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #333;
+}
+
+.menu-btn:hover {
+    background: #e2e6ea;
+}
+
+.time-highlight {
+    background: #e3f2fd;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #007bff;
+}
