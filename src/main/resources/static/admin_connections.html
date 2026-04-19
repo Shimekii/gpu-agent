@@ -29,6 +29,25 @@
 </div>
 
 <script>
+    function formatAnyDate(dateVal) {
+        if (!dateVal) return '—';
+
+        // Если это число и оно слишком маленькое для миллисекунд (меньше 10^12)
+        // значит это секунды. Умножаем на 1000.
+        if (typeof dateVal === 'number') {
+            const ms = dateVal < 10000000000 ? dateVal * 1000 : dateVal;
+            return new Date(ms).toLocaleString();
+        }
+
+        // Если это объект Instant от Jackson (иногда приходит как {epochSecond: ...})
+        if (typeof dateVal === 'object' && dateVal.epochSecond) {
+            return new Date(dateVal.epochSecond * 1000).toLocaleString();
+        }
+
+        // Если это строка (ISO формат), JS поймет её сам
+        return new Date(dateVal).toLocaleString();
+    }
+
     async function loadLogs() {
         const resp = await fetch('/logs');
         const logs = await resp.json();
@@ -37,8 +56,9 @@
 
         logs.forEach(log => {
             // log.id в вашем ConnectionLog — это логин пользователя
-            const loginTime = log.loginTime ? new Date(log.loginTime).toLocaleString() : '—';
-            const logoutTime = log.logoutTime ? new Date(log.logoutTime).toLocaleString() : 'Активно';
+            // Находим строки, где формируются даты:
+            const loginTime = log.loginTime ? formatAnyDate(log.loginTime) : '—';
+            const logoutTime = log.logoutTime ? formatAnyDate(log.logoutTime) : 'Активно';
 
             tbody.innerHTML += `
                 <tr>

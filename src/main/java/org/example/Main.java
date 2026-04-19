@@ -14,6 +14,7 @@ import org.example.repository.RequestRepository;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
+import org.example.servlet.GpuServlet;
 import org.example.servlet.LogServlet;
 import org.example.servlet.UserServlet;
 import org.example.servlet.RequestServlet;
@@ -196,6 +197,10 @@ public class Main {
         LogServlet logServlet = new LogServlet(agent.getStorageService());
         Tomcat.addServlet(context, "LogServlet", logServlet);
         context.addServletMappingDecoded("/logs", "LogServlet");
+
+        GpuServlet gpuServlet = new GpuServlet(agent);
+        Tomcat.addServlet(context, "GpuServlet", gpuServlet);
+        context.addServletMappingDecoded("/gpu", "GpuServlet");
 
         tomcat.start();
         System.out.println("Сервер запущен. Открыть: http://localhost:8080/");

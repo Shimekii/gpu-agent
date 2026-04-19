@@ -20,6 +20,25 @@
 </div>
 
 <script>
+  // Универсальная функция форматирования даты (такая же как в списке)
+  function formatAnyDate(dateVal) {
+    if (!dateVal) return '—';
+
+    // Если это число (секунды или миллисекунды)
+    if (typeof dateVal === 'number') {
+      const ms = dateVal < 10000000000 ? dateVal * 1000 : dateVal;
+      return new Date(ms).toLocaleString();
+    }
+
+    // Если это объект Instant от Jackson {epochSecond: ...}
+    if (typeof dateVal === 'object' && dateVal.epochSecond) {
+      return new Date(dateVal.epochSecond * 1000).toLocaleString();
+    }
+
+    // Если это ISO строка
+    return new Date(dateVal).toLocaleString();
+  }
+
   async function loadLogDetails() {
     const urlParams = new URLSearchParams(window.location.search);
     const logId = urlParams.get('id');
@@ -27,11 +46,12 @@
     const resp = await fetch(`/logs?action=get&id=${logId}`);
     const log = await resp.json();
 
+    // Используем функцию formatAnyDate для вывода
     document.getElementById('logContent').innerHTML = `
             <div class="info-row"><span class="info-label">ID:</span> ${logId}</div>
             <div class="info-row"><span class="info-label">Пользователь:</span> ${log.id}</div>
-            <div class="info-row"><span class="info-label">Время входа:</span> ${new Date(log.loginTime).toLocaleString()}</div>
-            <div class="info-row"><span class="info-label">Время выхода:</span> ${log.logoutTime ? new Date(log.logoutTime).toLocaleString() : 'Сессия не завершена'}</div>
+            <div class="info-row"><span class="info-label">Время входа:</span> ${formatAnyDate(log.loginTime)}</div>
+            <div class="info-row"><span class="info-label">Время выхода:</span> ${log.logoutTime ? formatAnyDate(log.logoutTime) : 'Сессия не завершена'}</div>
             <div class="info-row"><span class="info-label">Тип подключения:</span> <code>${log.connectionType}</code></div>
         `;
   }
