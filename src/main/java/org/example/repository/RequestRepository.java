@@ -33,6 +33,12 @@ public class RequestRepository {
         return requests;
     }
 
+    public Request findById(String id) throws Exception {
+        Object data = db.get(id);
+        if (data == null) return null;
+        return mapper.readValue(data.toString(), Request.class);
+    }
+
     public StorageService getStorageService() {
         return storageService;
     }

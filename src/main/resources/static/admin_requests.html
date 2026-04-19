@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление заявками</title>
+    <link rel="stylesheet" href="student.css">
+</head>
+<body class="student-layout" onload="loadAllRequests()">
+<div class="student-title">Панель администратора</div>
+<div class="request-card wide">
+    <h2>Все заявки</h2>
+    <div class="scroll-table">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Пользователь</th>
+                <th>Начало</th>
+                <th>Конец</th>
+                <th>Статус</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody id="allRequestsTable"></tbody>
+        </table>
+    </div>
+    <div class="flex-row">
+        <button class="btn-secondary" onclick="location.href='dashboard.html'">Назад</button>
+    </div>
+</div>
+
+<script>
+    async function loadAllRequests() {
+        const resp = await fetch('/requests?action=listAll');
+        const requests = await resp.json();
+        const tbody = document.getElementById('allRequestsTable');
+        tbody.innerHTML = '';
+
+        requests.forEach(r => {
+            const start = new Date(r.startTime);
+            const end = new Date(r.endTime);
+            tbody.innerHTML += `
+                <tr>
+                    <td>${r.id.substring(0,8)}...</td>
+                    <td><b>${r.userLogin}</b></td>
+                    <td>${start.toLocaleString()}</td>
+                    <td>${end.toLocaleString()}</td>
+                    <td><span class="status-${r.status.toLowerCase()}">${r.status}</span></td>
+                    <td><button class="btn-primary" style="padding:5px 10px;"
+                        onclick="location.href='request_details.html?id=${r.id}'">Детали</button></td>
+                </tr>`;
+        });
+    }
+</script>
+</body>
+</html>

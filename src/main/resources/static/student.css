@@ -176,3 +176,31 @@ th { background-color: #f8f9fa; }
 
 .btn-open { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
 .flex-row { display: flex; justify-content: space-between; margin-top: 20px; }
+
+/* Контейнер для прокрутки таблицы */
+.scroll-table {
+    max-height: 400px; /* Высота, после которой появится скролл */
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+/* Фиксируем шапку таблицы */
+.scroll-table th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 1;
+    box-shadow: inset 0 -1px 0 #eee; /* Линия под шапкой */
+}
+
+/* Убираем внешний отступ у таблицы, так как он теперь у контейнера */
+.scroll-table table {
+    margin: 0;
+}
+
+.status-created { color: #fd7e14; font-weight: bold; }   /* Оранжевый */
+.status-approved { color: #28a745; font-weight: bold; }  /* Зеленый */
+.status-rejected { color: #dc3545; font-weight: bold; }  /* Красный */
+.status-active { color: #007bff; font-weight: bold; }    /* Синий */
