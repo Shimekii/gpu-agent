@@ -14,6 +14,7 @@ import org.example.repository.RequestRepository;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
+import org.example.servlet.LogServlet;
 import org.example.servlet.UserServlet;
 import org.example.servlet.RequestServlet;
 import java.io.File;
@@ -191,6 +192,10 @@ public class Main {
         RequestServlet requestServlet = new RequestServlet(requestRepository);
         Tomcat.addServlet(context, "RequestServlet", requestServlet);
         context.addServletMappingDecoded("/requests", "RequestServlet");
+
+        LogServlet logServlet = new LogServlet(agent.getStorageService());
+        Tomcat.addServlet(context, "LogServlet", logServlet);
+        context.addServletMappingDecoded("/logs", "LogServlet");
 
         tomcat.start();
         System.out.println("Сервер запущен. Открыть: http://localhost:8080/");

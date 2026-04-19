@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Детали подключения</title>
+  <link rel="stylesheet" href="student.css">
+  <style>
+    .info-row { margin-bottom: 12px; font-size: 16px; border-bottom: 1px solid #f0f0f0; padding-bottom: 5px; }
+    .info-label { font-weight: bold; color: #555; width: 180px; display: inline-block; }
+  </style>
+</head>
+<body class="student-layout" onload="loadLogDetails()">
+<div class="student-title">Детали подключения</div>
+<div class="request-card">
+  <div id="logContent">
+  </div>
+  <div class="flex-row">
+    <button class="btn-secondary" onclick="location.href='admin_connections.html'">Назад</button>
+  </div>
+</div>
+
+<script>
+  async function loadLogDetails() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const logId = urlParams.get('id');
+
+    const resp = await fetch(`/logs?action=get&id=${logId}`);
+    const log = await resp.json();
+
+    document.getElementById('logContent').innerHTML = `
+            <div class="info-row"><span class="info-label">ID:</span> ${logId}</div>
+            <div class="info-row"><span class="info-label">Пользователь:</span> ${log.id}</div>
+            <div class="info-row"><span class="info-label">Время входа:</span> ${new Date(log.loginTime).toLocaleString()}</div>
+            <div class="info-row"><span class="info-label">Время выхода:</span> ${log.logoutTime ? new Date(log.logoutTime).toLocaleString() : 'Сессия не завершена'}</div>
+            <div class="info-row"><span class="info-label">Тип подключения:</span> <code>${log.connectionType}</code></div>
+        `;
+  }
+</script>
+</body>
+</html>
