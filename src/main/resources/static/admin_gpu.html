@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Метрики GPU</title>
+    <link rel="stylesheet" href="student.css">
+    <style>
+        .gpu-stats { display: flex; gap: 20px; justify-content: center; margin-bottom: 25px; }
+        .stat-box { background: #f8f9fa; border: 2px solid #007bff; border-radius: 10px; padding: 15px; width: 200px; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #007bff; display: block; }
+        .stat-label { font-size: 14px; color: #666; }
+    </style>
+</head>
+<body class="student-layout" onload="loadGpuData()">
+<div class="student-title">Панель администратора</div>
+<div class="request-card wide">
+    <h2>Метрики GPU (Real-time)</h2>
+
+    <div class="gpu-stats">
+        <div class="stat-box">
+            <span class="stat-label">Свободная память</span>
+            <span id="currMem" class="stat-value">-- Mb</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Температура</span>
+            <span id="currTemp" class="stat-value">-- °C</span>
+        </div>
+    </div>
+
+    <h3>История снимков</h3>
+    <div class="scroll-table">
+        <table>
+            <thead>
+            <tr>
+                <th>Время снимка</th>
+                <th>Свободно (Mb)</th>
+                <th>Температура</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody id="gpuHistoryTable"></tbody>
+        </table>
+    </div>
+
+    <div class="flex-row">
+        <button class="btn-secondary" onclick="location.href='dashboard.html'">Назад</button>
+    </div>
+</div>
+
+<script>
+    async function loadGpuData() {
+        // 1. Текущие данные
+        const currResp = await fetch('/gpu');
+        const curr = await currResp.json();
+
+        const m = curr.metrics ? curr.metrics : curr;
+
+        if (m.freeMemory) {
+            document.getElementById('currMem').innerText = m.freeMemory + " Mb";
+            document.getElementById('currTemp').innerText = m.temperature + " °C";
+        }
+
+        // 2. История
+        const histResp = await fetch('/gpu?action=history');
+        const history = await histResp.json();
+        const tbody = document.getElementById('gpuHistoryTable');
+        tbody.innerHTML = '';
+
+        history.forEach(item => {
+            const m = item.metrics;
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${m.freeMemory} Mb</td>
+                    <td>${m.temperature} °C</td>
+                    <td><button class="btn-open" onclick="viewDetails('${encodeURIComponent(item.id)}')">Детали</button></td>
+                </tr>`;
+        });
+    }
+
+    function viewDetails(id) {
+        location.href = `gpu_details.html?id=${id}`;
+    }
+</script>
+</body>
+</html>

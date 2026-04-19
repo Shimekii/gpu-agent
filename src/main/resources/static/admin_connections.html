@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Подключения</title>
+    <link rel="stylesheet" href="student.css">
+</head>
+<body class="student-layout" onload="loadLogs()">
+<div class="student-title">Панель администратора</div>
+<div class="request-card wide">
+    <h2>История подключений</h2>
+    <div class="scroll-table">
+        <table>
+            <thead>
+            <tr>
+                <th>Пользователь</th>
+                <th>Вход</th>
+                <th>Выход</th>
+                <th>Тип</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody id="logsTableBody"></tbody>
+        </table>
+    </div>
+    <div class="flex-row">
+        <button class="btn-secondary" onclick="location.href='dashboard.html'">Назад</button>
+    </div>
+</div>
+
+<script>
+    function formatAnyDate(dateVal) {
+        if (!dateVal) return '—';
+
+        // Если это число и оно слишком маленькое для миллисекунд (меньше 10^12)
+        // значит это секунды. Умножаем на 1000.
+        if (typeof dateVal === 'number') {
+            const ms = dateVal < 10000000000 ? dateVal * 1000 : dateVal;
+            return new Date(ms).toLocaleString();
+        }
+
+        // Если это объект Instant от Jackson (иногда приходит как {epochSecond: ...})
+        if (typeof dateVal === 'object' && dateVal.epochSecond) {
+            return new Date(dateVal.epochSecond * 1000).toLocaleString();
+        }
+
+        // Если это строка (ISO формат), JS поймет её сам
+        return new Date(dateVal).toLocaleString();
+    }
+
+    async function loadLogs() {
+        const resp = await fetch('/logs');
+        const logs = await resp.json();
+        const tbody = document.getElementById('logsTableBody');
+        tbody.innerHTML = '';
+
+        logs.forEach(log => {
+            // log.id в вашем ConnectionLog — это логин пользователя
+            // Находим строки, где формируются даты:
+            const loginTime = log.loginTime ? formatAnyDate(log.loginTime) : '—';
+            const logoutTime = log.logoutTime ? formatAnyDate(log.logoutTime) : 'Активно';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><b>${log.id}</b></td>
+                    <td>${loginTime}</td>
+                    <td>${logoutTime}</td>
+                    <td><small>${log.connectionType}</small></td>
+                    <td><button class="btn-open" onclick="location.href='connection_details.html?id=${log.internalId}'">Детали</button></td>
+                </tr>`;
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Детали метрики</title>
+    <link rel="stylesheet" href="student.css">
+</head>
+<body class="student-layout" onload="loadSnapshotDetails()">
+<div class="student-title">Детали снимка GPU</div>
+<div class="request-card wide">
+    <div id="snapshotInfo" style="margin-bottom: 20px; line-height: 1.6;">
+    </div>
+
+    <h3>Запущенные процессы (в момент снимка)</h3>
+    <div class="scroll-table" style="max-height: 250px;">
+        <table>
+            <thead>
+            <tr>
+                <th>PID</th>
+                <th>Команда / Процесс</th>
+                <th>Владелец</th>
+                <th>Память</th>
+            </tr>
+            </thead>
+            <tbody id="processesTable"></tbody>
+        </table>
+    </div>
+
+    <div class="flex-row">
+        <button class="btn-secondary" onclick="location.href='admin_gpu.html'">Назад</button>
+    </div>
+</div>
+
+<script>
+    async function loadSnapshotDetails() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+
+        const resp = await fetch('/gpu?action=history');
+        const history = await resp.json();
+        const data = history.find(h => h.id === id);
+
+        if (data) {
+            document.getElementById('snapshotInfo').innerHTML = `
+                <b>ID снимка:</b> ${data.id}<br>
+                <b>Время:</b> ${data.id}<br>
+                <b>Свободная память:</b> ${data.metrics.freeMemory} Mb<br>
+                <b>Температура:</b> ${data.metrics.temperature} °C
+            `;
+
+            const tbody = document.getElementById('processesTable');
+            // В твоем GPUAgent процессы сохраняются как List<String>
+            data.processes.forEach((proc, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${1000 + index}</td>
+                        <td>${proc}</td>
+                        <td>system / student</td>
+                        <td>--</td>
+                    </tr>`;
+            });
+        }
+    }
+</script>
+</body>
+</html>
