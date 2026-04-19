@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление пользователями</title>
+    <link rel="stylesheet" href="student.css">
+</head>
+<body class="student-layout" onload="loadUsers()">
+<div class="student-title">Панель администратора</div>
+<div class="request-card wide">
+    <h2>Пользователи</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Логин</th>
+            <th>ФИО</th>
+            <th>Дата создания</th>
+            <th>Действие</th>
+        </tr>
+        </thead>
+        <tbody id="usersTableBody"></tbody>
+    </table>
+    <div class="flex-row">
+        <button class="btn-secondary" onclick="location.href='dashboard.html'">Назад</button>
+        <button class="btn-create" onclick="location.href='create_user.html'">+ Создать</button>
+    </div>
+</div>
+
+<script>
+    function shortenFIO(fio) {
+        if (!fio) return "—";
+        const parts = fio.split(' ');
+        if (parts.length < 3) return fio;
+        return `${parts[0]} ${parts[1][0]}. ${parts[2][0]}.`;
+    }
+
+    async function loadUsers() {
+        try {
+            const response = await fetch('/users');
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`);
+            }
+
+            const users = await response.json();
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            users.forEach(u => {
+                // Безопасное отображение даты
+                const dateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—";
+
+                tbody.innerHTML += `
+                <tr>
+                    <td>${u.login}</td>
+                    <td>${shortenFIO(u.fullName)}</td>
+                    <td>${dateStr}</td>
+                    <td><button class="btn-open" onclick="location.href='user_details.html?login=${u.login}'">Детали</button></td>
+                </tr>
+            `;
+            });
+        } catch (error) {
+            console.error("Не удалось загрузить пользователей:", error);
+            alert("Ошибка при загрузке списка пользователей. Проверьте консоль сервера.");
+        }
+    }
+</script>
+</body>
+</html>

@@ -31,6 +31,9 @@ public class RequestServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json;charset=UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+
         String login = req.getParameter("login");
         String action = req.getParameter("action");
 
@@ -70,6 +73,9 @@ public class RequestServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json;charset=UTF-8");
+        resp.setCharacterEncoding("UTF-8");
+
         try {
             // Jackson создаст объект и заполнит те поля, что пришли из JSON (login, purpose, times)
             Request newRequest = mapper.readValue(req.getInputStream(), Request.class);

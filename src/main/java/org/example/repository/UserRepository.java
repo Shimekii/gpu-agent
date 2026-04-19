@@ -5,6 +5,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.example.domain.User;
 import org.example.service.StorageService;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class UserRepository {
@@ -26,10 +29,32 @@ public class UserRepository {
         db.put(user.getLogin(), mapper.writeValueAsString(user));
     }
 
-    public User findByLogin(String login) throws Exception {
-        Object data = db.get(login);
-        if (data == null) return null;
-        return mapper.readValue(data.toString(), User.class);
+    public User findByLogin(String login) {
+        try {
+            Object data = db.get(login);
+            if (data == null) return null;
+            return mapper.readValue(data.toString(), User.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // Метод для получения всех пользователей
+    public List<User> findAll() {
+        List<User> users = new ArrayList<>();
+        for (Object value : db.values()) {
+            try {
+                users.add(mapper.readValue(value.toString(), User.class));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return users;
+    }
+
+    // метод удаления для админки
+    public void deleteByLogin(String login) {
+        db.remove(login);
     }
 
     public StorageService getStorageService() {

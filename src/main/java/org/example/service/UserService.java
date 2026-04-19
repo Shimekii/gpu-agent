@@ -7,6 +7,8 @@ import org.example.domain.ConnectionType;
 import org.example.domain.ConnectionLog;
 import java.time.LocalDateTime;
 import org.example.domain.RequestStatus;
+
+import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -30,6 +32,15 @@ public class UserService {
         if (userRepository.findByLogin(user.getLogin()) != null) {
             throw new IllegalArgumentException("Пользователь уже существует!");
         }
+
+        // Гарантируем наличие данных перед сохранением
+        if (user.getCreatedAt() == null) {
+            user.setCreatedAt(LocalDateTime.now());
+        }
+        if (user.getRole() == null) {
+            user.setRole(org.example.domain.UserRole.USER);
+        }
+
         userRepository.save(user);
     }
 
@@ -68,5 +79,17 @@ public class UserService {
         userRepository.getStorageService().getStore().commit();
 
         System.out.println("Событие входа залогировано для: " + login);
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User getUserByLogin(String login) {
+        return userRepository.findByLogin(login);
+    }
+
+    public void deleteUser(String login) {
+        userRepository.deleteByLogin(login);
     }
 }
